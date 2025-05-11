@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -44,5 +43,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get all rentals made by the user.
+     */
+    public function rentals()
+    {
+        return $this->hasMany(Rental::class, 'users_id');
+    }
+
+    /**
+     * Get all checklists created by the user.
+     */
+    public function checklists()
+    {
+        return $this->hasMany(Checklist::class, 'users_id');
     }
 }
