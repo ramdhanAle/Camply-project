@@ -19,16 +19,10 @@ class ChecklistController extends Controller
         $validated = $request->validate([
             'users_id' => 'required|exists:users,id',
             'title' => 'required|string|max:100',
-            'items' => 'nullable|array',
-            'items.*' => 'string|max:255'
+            'type' => 'required|string|max:45'
         ]);
 
-        // Simpan items dalam bentuk JSON jika berupa array
-        $checklist = Checklist::create([
-            'users_id' => $validated['users_id'],
-            'title' => $validated['title'],
-            'items' => json_encode($validated['items'] ?? [])
-        ]);
+        $checklist = Checklist::create($validated);
 
         return response()->json($checklist, 201);
     }
@@ -40,7 +34,7 @@ class ChecklistController extends Controller
         if (!$checklist) {
             return response()->json(['message' => 'Checklist not found'], 404);
         }
-        return response()->json($checklist, 200);
+        return response()->json($checklist);
     }
 
     // PUT /api/checklists/{id}
@@ -53,18 +47,13 @@ class ChecklistController extends Controller
 
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:100',
-            'items' => 'nullable|array',
-            'items.*' => 'string|max:255'
+            'type' => 'sometimes|required|string|max:45',
+            'users_id' => 'sometimes|required|exists:users,id'
         ]);
 
-        $checklist->update([
-            'title' => $validated['title'] ?? $checklist->title,
-            'items' => array_key_exists('items', $validated)
-                ? json_encode($validated['items'])
-                : $checklist->items
-        ]);
+        $checklist->update($validated);
 
-        return response()->json($checklist, 200);
+        return response()->json($checklist);
     }
 
     // DELETE /api/checklists/{id}
@@ -76,6 +65,6 @@ class ChecklistController extends Controller
         }
 
         $checklist->delete();
-        return response()->json(['message' => 'Checklist deleted successfully'], 200);
+        return response()->json(['message' => 'Checklist deleted successfully'], 204);
     }
 }

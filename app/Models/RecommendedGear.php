@@ -9,7 +9,7 @@ class RecommendedGear extends Model
 {
     use HasFactory;
 
-    protected $table = 'recommended_gear';
+    protected $table = 'recommended_gears';
 
     protected $fillable = [
         'gear_name',

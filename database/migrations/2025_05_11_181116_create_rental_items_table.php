@@ -13,8 +13,11 @@ return new class extends Migration
     {
         Schema::create('rental_items', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('rental_id')->constrained('rentals')->onDelete('cascade');
+            $table->foreignId('item_id')->constrained('items')->onDelete('cascade');
+            $table->integer('quantity')->default(1);
             $table->timestamps();
-        });
+        });     
     }
 
     /**

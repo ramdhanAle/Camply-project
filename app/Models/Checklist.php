@@ -10,18 +10,14 @@ class Checklist extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title',        // sesuai migrasi (meskipun typo)
-        'type',          // tipe perlengkapan
-        'users_id',      // foreign key ke users
-        'created_at',    // isi manual jika perlu
+        'title',        
+        'type',         
+        'users_id',     
+        'created_at',   
         'updated_at'
     ];
 
     public $timestamps = false;
-
-    protected $casts = [
-        'items' => 'array', // Laravel otomatis decode dari JSON ke array
-    ];
 
     public function user()
     {
