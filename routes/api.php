@@ -10,17 +10,31 @@ use App\Http\Controllers\RentalController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RecommendedGearController;
 use App\Http\Controllers\RentalItemController;
+use App\Http\Controllers\AuthController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+//PUBLIC ACCESS
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/ping', function () {
+    return response() ->json(['message' => 'API is working']);
+});
+
+//Optional public
+Route::apiResource('gear-guides', GearGuideController::class)->only(['index', 'show']);
+Route::apiResource('recommended-gears', RecommendedGearController::class)->only(['index', 'show']);
+
+//PRTECTED ACCESS (LOGIN REQUIRED)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::apiResource('users', UserController::class);
+    Route::apiResource('checklists', ChecklistController::class);
+    Route::apiResource('rentals', RentalController::class);
+    Route::apiResource('rental-items', RentalitemsController::class);
+});
+
 
 // Optional test route
 Route::get('/ping', function () {
