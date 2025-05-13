@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('checklists', function (Blueprint $table) {
             $table->id();
-            $table->string('tittle', 100); // typo asli dari ERD, bisa diubah ke 'title' jika perlu
+            $table->string('title', 100); 
             $table->string('type', 45);
             $table->dateTime('created_at')->nullable();
             $table->unsignedBigInteger('users_id');
@@ -21,7 +21,7 @@ return new class extends Migration
             // Foreign key ke tabel users
             $table->foreign('users_id')->references('id')->on('users')->onDelete('cascade');
 
-            // Laravel style: tambahkan updated_at juga agar sesuai konvensi
+          
             $table->timestamp('updated_at')->nullable();
         });
     }

@@ -9,8 +9,8 @@ class Rental extends Model
 {
     use HasFactory;
 
-    // Jika nama tabel tidak standar plural dari model, tambahkan:
-    // protected $table = 'rentals';
+    // Non‐aktifkan auto‐timestamps (created_at + updated_at)
+    public $timestamps = false;
 
     protected $fillable = [
         'rental_date',
@@ -22,7 +22,7 @@ class Rental extends Model
     ];
 
     /**
-     * Relasi: Rental dimiliki oleh satu User
+     * Setiap Rental dimiliki oleh satu User
      */
     public function user()
     {
@@ -30,11 +30,15 @@ class Rental extends Model
     }
 
     /**
-     * Relasi: Rental memiliki banyak Item melalui tabel pivot rentals_has_items
+     * Setiap Rental punya banyak Item via pivot rentals_has_items
      */
     public function items()
     {
-        return $this->belongsToMany(Item::class, 'rentals_has_items', 'rentals_id', 'items_id')
-                    ->withPivot('quantity');
+        return $this->belongsToMany(
+            Item::class,
+            'rentals_has_items',
+            'rentals_id',
+            'items_id'
+        )->withPivot('quantity');
     }
 }

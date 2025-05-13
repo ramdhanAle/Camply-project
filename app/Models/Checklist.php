@@ -9,13 +9,12 @@ class Checklist extends Model
 {
     use HasFactory;
 
-    protected $table = 'checklist'; // nama tabel sesuai database
-
     protected $fillable = [
-        'title',       // perbaikan dari 'tittle'
-        'items',       // JSON berisi array string
-        'users_id',
-        'created_at'   // bisa tetap ada kalau Anda pakai manual
+        'title',        // sesuai migrasi (meskipun typo)
+        'type',          // tipe perlengkapan
+        'users_id',      // foreign key ke users
+        'created_at',    // isi manual jika perlu
+        'updated_at'
     ];
 
     public $timestamps = false;
