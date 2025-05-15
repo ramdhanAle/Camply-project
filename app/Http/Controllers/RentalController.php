@@ -7,20 +7,26 @@ use Illuminate\Http\Request;
 
 class RentalController extends Controller
 {
-    // GET /api/rentals
     public function index()
     {
-        return response()->json(Rental::with('items')->get(), 200);
+        // hanya tampilkan milik user login
+        return response()->json(
+            Rental::with('items')->where('users_id', auth()->id())->get(),
+            200
+        );
     }
 
-    // GET /api/rentals/{id}
     public function show($id)
     {
         $rental = Rental::with('items')->findOrFail($id);
+
+        if ($rental->users_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         return response()->json($rental, 200);
     }
 
-    // POST /api/rentals
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -28,7 +34,6 @@ class RentalController extends Controller
             'return_date' => 'required|date|after_or_equal:rental_date',
             'total_price' => 'required|numeric',
             'status' => 'required|in:pending,approved,cancelled,returned',
-            'users_id' => 'required|exists:users,id',
             'items' => 'required|array',
             'items.*.id' => 'required|exists:items,id',
             'items.*.quantity' => 'required|integer|min:1'
@@ -39,7 +44,7 @@ class RentalController extends Controller
             'return_date' => $validated['return_date'],
             'total_price' => $validated['total_price'],
             'status' => $validated['status'],
-            'users_id' => $validated['users_id'],
+            'users_id' => auth()->id(), // otomatis dari token login
             'created_at' => now(),
         ]);
 
@@ -48,27 +53,30 @@ class RentalController extends Controller
         return response()->json($rental->load('items'), 201);
     }
 
-    // PUT /api/rentals/{id}
     public function update(Request $request, $id)
     {
+        $rental = Rental::findOrFail($id);
+
+        if ($rental->users_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validated = $request->validate([
             'rental_date' => 'required|date',
             'return_date' => 'required|date|after_or_equal:rental_date',
             'total_price' => 'required|numeric',
             'status' => 'required|in:pending,approved,cancelled,returned',
-            'users_id' => 'required|exists:users,id',
             'items' => 'required|array',
             'items.*.id' => 'required|exists:items,id',
             'items.*.quantity' => 'required|integer|min:1'
         ]);
 
-        $rental = Rental::findOrFail($id);
         $rental->update([
             'rental_date' => $validated['rental_date'],
             'return_date' => $validated['return_date'],
             'total_price' => $validated['total_price'],
             'status' => $validated['status'],
-            'users_id' => $validated['users_id'],
+            // users_id tidak perlu di-update
         ]);
 
         $this->syncItems($rental, $validated['items']);
@@ -76,17 +84,20 @@ class RentalController extends Controller
         return response()->json($rental->load('items'), 200);
     }
 
-    // DELETE /api/rentals/{id}
     public function destroy($id)
     {
         $rental = Rental::findOrFail($id);
-        $rental->items()->detach(); // hapus relasi pivot dulu
+
+        if ($rental->users_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $rental->items()->detach();
         $rental->delete();
 
         return response()->json(['message' => 'Rental deleted'], 200);
     }
 
-    // Helper: sinkronisasi item dan quantity
     private function syncItems(Rental $rental, array $items)
     {
         $syncData = [];

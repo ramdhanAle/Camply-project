@@ -10,14 +10,12 @@ class Checklist extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title',        
-        'type',         
-        'users_id',     
-        'created_at',   
-        'updated_at'
+        'title',
+        'type',
+        'users_id'
     ];
 
-    public $timestamps = false;
+    public $timestamps = true; // aktifkan karena kamu punya created_at & updated_at
 
     public function user()
     {
