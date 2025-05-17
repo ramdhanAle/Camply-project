@@ -74,18 +74,39 @@ class ChecklistController extends Controller
     // DELETE /api/checklists/{id}
     public function destroy($id)
     {
-        $checklist = Checklist::find($id);
+        try {
+            $checklist = auth()->user()->checklists()->find($id);
 
-        if (!$checklist) {
-            return response()->json(['message' => 'Checklist not found'], 404);
-        }
-
-        if ($checklist->users_id !== auth()->id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+            if (!$checklist) {
+                return response()->json([
+                    'sukses' => false,
+                    'pesan' => 'Checklist gak ketemu bang!'
+                ], 404);
+            }
 
         $checklist->delete();
 
-        return response()->json(['message' => 'Checklist deleted successfully'], 204);
+            return response()->json([
+                'sukses' => true,
+                'pesan' => 'Checklist berhasil dihapus!',
+                'data' => [
+                    'id' => $id,
+                    'waktu_hapus' => now()->format('d-m-Y H:i:s')
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error hapus checklist: '.$e->getMessage());
+            return $this->errorResponse('Gagal hapus checklist, ada error nih!');
+        }
+    }
+
+    // Helper buat response error
+    private function errorResponse($message)
+    {
+        return response()->json([
+            'sukses' => false,
+            'pesan' => $message
+        ], 500);
     }
 }

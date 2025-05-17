@@ -11,6 +11,14 @@ use App\Http\Controllers\{
     RentalItemController
 };
 
+Route::get('/', function () {
+    return response()->json([
+        'app' => config('app.name'),
+        'version' => '1.0',
+        'status' => 'operational'
+    ]);
+});
+
 // PUBLIC ROUTES
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -22,7 +30,7 @@ Route::apiResource('gear-guides', GearGuideController::class)->only(['index', 's
 // PROTECTED ROUTES (LOGIN REQUIRED)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
     // ❗ User management hanya bisa diakses admin
     Route::middleware('admin.only')->group(function () {
@@ -35,3 +43,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route::apiResource('rental-items', RentalItemController::class);
     Route::apiResource('items', ItemController::class);
 });
+
+    Route::fallback(function(){
+    return response()->json([
+        'message' => 'Endpoint not found'
+    ], 404);
+    });

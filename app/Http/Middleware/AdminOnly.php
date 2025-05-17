@@ -9,10 +9,9 @@ class AdminOnly
 {
     public function handle(Request $request, Closure $next)
     {
-        if ($request->user() && $request->user()->role === 'admin') {
-            return $next($request);
-        }
-
-        return response()->json(['message' => 'Unauthorized'], 403);
+    if (auth()->user()->role !== 'admin') {
+        return response()->json(['message' => 'Unauthorized access'], 403);
+    }
+    return $next($request);
     }
 }
