@@ -59,11 +59,13 @@ class UserController extends Controller
         return response()->json(['message' => 'User updated', 'user' => $user]);
     }
 
-    public function destroy($id)
-    {
-        $user = User::findOrFail($id);
-        $user->delete();
-
-        return response()->json(['message' => 'User deleted']);
+   public function destroy(User $user)
+{
+    if (!auth()->user()->isAdmin()) {
+        abort(403, 'Akses ditolak');
     }
+
+    $user->delete();
+    return response()->json(['message' => 'User dihapus']);
+}
 }

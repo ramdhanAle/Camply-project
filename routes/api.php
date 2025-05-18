@@ -33,10 +33,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
     // ❗ User management hanya bisa diakses admin
-    Route::middleware('admin.only')->group(function () {
-        Route::apiResource('users', UserController::class);
+    Route::middleware(['auth:sanctum', 'admin.only'])->group(function () {
+    Route::apiResource('users', UserController::class);
     });
-
+    
     // Other resource routes
     Route::apiResource('checklists', ChecklistController::class);
     Route::apiResource('rentals', RentalController::class);
